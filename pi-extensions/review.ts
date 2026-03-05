@@ -5,7 +5,6 @@ import {
 	type ExtensionAPI,
 	type ExtensionCommandContext,
 } from "@mariozechner/pi-coding-agent";
-import { Text } from "@mariozechner/pi-tui";
 
 type ReviewTarget =
 	| { type: "uncommittedChanges" }
@@ -62,6 +61,7 @@ interface ReviewSummaryDetails {
 
 const REVIEW_STATUS_KEY = "codex-review";
 const REVIEW_SUMMARY_CUSTOM_TYPE = "codex-review-summary";
+const PI_TUI_PACKAGE = "@mariozechner/pi-tui";
 
 const REVIEW_SYSTEM_PROMPT = `# Review guidelines:
 
@@ -165,6 +165,82 @@ const REVIEW_USAGE = [
 	"  /review --uncommitted        # review current staged/unstaged/untracked changes",
 ].join("\n");
 
+async function registerReviewSummaryRenderer(pi: ExtensionAPI): Promise<void> {
+	try {
+		const module = (await import(PI_TUI_PACKAGE)) as {
+			Text?: new (text: string, paddingX?: number, paddingY?: number) => any;
+		};
+		const Text = module.Text;
+		if (!Text) return;
+
+		pi.registerMessageRenderer<ReviewSummaryDetails>(REVIEW_SUMMARY_CUSTOM_TYPE, (message, { expanded }, theme) => {
+			const details = message.details as ReviewSummaryDetails | undefined;
+			if (!details) {
+				return new Text(contentToText(message.content), 0, 0);
+			}
+
+			const lines: string[] = [];
+			lines.push(theme.fg("accent", theme.bold(`Code review summary — ${details.hint}`)));
+
+			const verdict = details.output.overall_correctness ?? "unknown";
+			const verdictColor =
+				verdict === "patch is correct" ? "success" : verdict === "patch is incorrect" ? "warning" : "muted";
+			let verdictLine = `Verdict: ${theme.fg(verdictColor, verdict)}`;
+			if (typeof details.output.overall_confidence_score === "number") {
+				verdictLine += theme.fg("dim", ` (${toPercent(details.output.overall_confidence_score)})`);
+			}
+			lines.push(verdictLine);
+
+			const findings = details.output.findings;
+			if (findings.length === 0) {
+				lines.push(theme.fg("success", "No findings reported."));
+			} else {
+				lines.push(theme.fg("warning", `${findings.length} finding${findings.length === 1 ? "" : "s"} reported.`));
+				const visible = expanded ? findings : findings.slice(0, 3);
+				for (let i = 0; i < visible.length; i++) {
+					const finding = visible[i];
+					lines.push(`${i + 1}. ${theme.bold(formatFindingTitle(finding))}`);
+
+					const location = formatCodeLocation(finding.code_location);
+					if (location) {
+						lines.push(`   ${theme.fg("dim", location)}`);
+					}
+
+					const body = finding.body.trim();
+					if (body) {
+						if (expanded) {
+							lines.push(`   ${body}`);
+						} else {
+							lines.push(`   ${theme.fg("dim", truncate(body.replace(/\s+/g, " "), 160))}`);
+						}
+					}
+				}
+
+				if (!expanded && findings.length > visible.length) {
+					lines.push(theme.fg("dim", `…${findings.length - visible.length} more finding(s); expand to view all.`));
+				}
+			}
+
+			const explanation = details.output.overall_explanation?.trim();
+			if (explanation) {
+				lines.push("");
+				lines.push(theme.fg("muted", "Overall explanation:"));
+				lines.push(expanded ? explanation : truncate(explanation.replace(/\s+/g, " "), 260));
+			}
+
+			if (details.parseMode === "fallback") {
+				lines.push("");
+				lines.push(theme.fg("dim", "(Reviewer output was not strict JSON; summary generated from plain text.)"));
+			}
+
+			return new Text(lines.join("\n"), 0, 0);
+		});
+	} catch {
+		// Some pi runtimes do not expose @mariozechner/pi-tui to auto-discovered extensions.
+		// Keep /review functional and fall back to default message rendering in that case.
+	}
+}
+
 export default function reviewExtension(pi: ExtensionAPI) {
 	let pendingReview: ReviewRequestState | undefined;
 	let activeReview: ReviewRequestState | undefined;
@@ -177,68 +253,7 @@ export default function reviewExtension(pi: ExtensionAPI) {
 		}
 	};
 
-	pi.registerMessageRenderer<ReviewSummaryDetails>(REVIEW_SUMMARY_CUSTOM_TYPE, (message, { expanded }, theme) => {
-		const details = message.details as ReviewSummaryDetails | undefined;
-		if (!details) {
-			return new Text(contentToText(message.content), 0, 0);
-		}
-
-		const lines: string[] = [];
-		lines.push(theme.fg("accent", theme.bold(`Code review summary — ${details.hint}`)));
-
-		const verdict = details.output.overall_correctness ?? "unknown";
-		const verdictColor =
-			verdict === "patch is correct" ? "success" : verdict === "patch is incorrect" ? "warning" : "muted";
-		let verdictLine = `Verdict: ${theme.fg(verdictColor, verdict)}`;
-		if (typeof details.output.overall_confidence_score === "number") {
-			verdictLine += theme.fg("dim", ` (${toPercent(details.output.overall_confidence_score)})`);
-		}
-		lines.push(verdictLine);
-
-		const findings = details.output.findings;
-		if (findings.length === 0) {
-			lines.push(theme.fg("success", "No findings reported."));
-		} else {
-			lines.push(theme.fg("warning", `${findings.length} finding${findings.length === 1 ? "" : "s"} reported.`));
-			const visible = expanded ? findings : findings.slice(0, 3);
-			for (let i = 0; i < visible.length; i++) {
-				const finding = visible[i];
-				lines.push(`${i + 1}. ${theme.bold(formatFindingTitle(finding))}`);
-
-				const location = formatCodeLocation(finding.code_location);
-				if (location) {
-					lines.push(`   ${theme.fg("dim", location)}`);
-				}
-
-				const body = finding.body.trim();
-				if (body) {
-					if (expanded) {
-						lines.push(`   ${body}`);
-					} else {
-						lines.push(`   ${theme.fg("dim", truncate(body.replace(/\s+/g, " "), 160))}`);
-					}
-				}
-			}
-
-			if (!expanded && findings.length > visible.length) {
-				lines.push(theme.fg("dim", `…${findings.length - visible.length} more finding(s); expand to view all.`));
-			}
-		}
-
-		const explanation = details.output.overall_explanation?.trim();
-		if (explanation) {
-			lines.push("");
-			lines.push(theme.fg("muted", "Overall explanation:"));
-			lines.push(expanded ? explanation : truncate(explanation.replace(/\s+/g, " "), 260));
-		}
-
-		if (details.parseMode === "fallback") {
-			lines.push("");
-			lines.push(theme.fg("dim", "(Reviewer output was not strict JSON; summary generated from plain text.)"));
-		}
-
-		return new Text(lines.join("\n"), 0, 0);
-	});
+	void registerReviewSummaryRenderer(pi);
 
 	pi.registerCommand("review", {
 		description: "Codex-style code review with prioritized findings",
