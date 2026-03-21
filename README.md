@@ -36,6 +36,7 @@ Skills live in `skills/` as `SKILL.md` playbooks. Load a skill by pointing your 
 | Skill | Trigger | Description |
 |-------|---------|-------------|
 | [`github-publish`](skills/github-publish/SKILL.md) | "publish to GitHub", "push to GitHub", "create a GitHub repo" | Analyzes the codebase, generates missing metadata files (README, .gitignore, LICENSE), creates the remote repo via `gh`, and pushes the first commit |
+| [`github-release`](skills/github-release/SKILL.md) | "set up releases", "add release workflow", "create release pipeline" | Detects the build system, generates a cross-platform GitHub Actions release workflow, creates a changelog, and updates the README with download links |
 | [`github-topics`](skills/github-topics/SKILL.md) | "add topics", "set repo tags", "update GitHub topics" | Analyzes the repo, recommends topics, validates them against GitHub, and applies them via `gh repo edit` |
 
 ## Setup
@@ -62,6 +63,8 @@ pi-extensions/
 skills/
   github-publish/
     SKILL.md         # publish a local project to a new GitHub repository
+  github-release/
+    SKILL.md         # generate a cross-platform GitHub Actions release workflow
   github-topics/
     SKILL.md         # generate and apply GitHub repository topics
 ```
