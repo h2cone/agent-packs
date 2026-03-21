@@ -1,49 +1,32 @@
 ---
 name: github-publish
-description: This skill should be used when the user wants to publish a project to GitHub, "push to GitHub", "create a GitHub repo", "upload to GitHub", "initialize git and push", or any task involving initializing a local project as a GitHub repository for the first time.
-version: 1.0.0
+description: Publishes a local project to a new GitHub repository by generating metadata files, creating the remote repo, and pushing. Triggers on "publish to GitHub", "push to GitHub", "create a GitHub repo", or first-time repository setup.
 ---
 
-# GitHub Publish
+Analyze the project, then create missing metadata files, the GitHub repo, and push.
 
-Publish the current local project to a new GitHub repository: analyze the codebase, generate metadata files, create the remote repo, and push.
+## Generate metadata files
 
-## Step 1 — Analyze the Codebase
+Create only if absent or empty. Never overwrite existing files unless the user explicitly asks.
 
-Read the project to understand its primary language/framework, purpose, and existing files (README, .gitignore, LICENSE). Use `Glob` and `Read` to explore. Do **not** overwrite files that already exist unless the user explicitly asks.
+- **README.md** — Matched to the actual project.
+- **.gitignore** — Appropriate for the detected language/framework.
+- **LICENSE** — MIT by default (current year, username from `gh api user -q .login`). Ask if the user wants a different license.
 
-## Step 2 — Generate Repository Metadata Files
+## Create repo and push
 
-Create the following files only if absent or empty:
-
-**README.md** — matched to the actual project, covering: project name, one-sentence description, features, getting started instructions, and license reference.
-
-**.gitignore** — appropriate for the detected language/framework, including build artifacts, dependency directories, editor/IDE folders, OS files, and local env files.
-
-**LICENSE** — MIT by default (use current year and GitHub username from `gh api user -q .login`), unless the user specifies otherwise.
-
-## Step 3 — Create the GitHub Repository
-
-Derive the repo name from the project directory (lowercase, hyphens). Derive the description from the README summary.
+Derive repo name from the directory (lowercase, hyphens). Derive description from README.
 
 ```bash
-gh repo create <repo-name> --public --description "<description>" --source=. --remote=origin
+gh repo create <repo-name> --public --description "<description>" --source=. --remote=origin --push
 ```
 
-Use `--private` if the user requested it. Stop and report if the repo name is already taken.
+- Use `--private` if the user requested it.
+- Stop and report if the repo name is already taken.
 
-## Step 4 — Initialize Git and Push
+## Edge cases
 
-```bash
-git init
-git add .
-git commit -m "first commit"
-git branch -M main
-git remote add origin git@github.com:<username>/<repo-name>.git
-git push -u origin main
-```
-
-- Before committing, check `git config user.name` and `git config user.email`. If either is unset, read them from the user's global git config (`git config --global user.name` / `git config --global user.email`) and apply them locally before running `git commit`.
 - Skip `git init` if `.git` already exists.
-- Skip `git remote add origin` and warn the user if `origin` is already set.
+- Before committing, check `git config user.name` and `git config user.email`. If unset, read from `--global` config and apply locally.
+- If `origin` remote already exists, warn the user instead of overwriting.
 - Print the repository URL after a successful push.
