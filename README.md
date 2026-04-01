@@ -12,23 +12,6 @@ Extensions live in `pi-extensions/` and are auto-discovered by [Pi](https://gith
 | `/commit [instructions]` | Stages all changes, generates a commit message via the AI, and commits |
 | `/review [options]` | Runs a read-only code review with prioritized findings |
 
-### `/commit` options
-
-```
-/commit                    # stage all changes, generate message, commit
-/commit <instructions>     # pass extra instructions for the commit message
-```
-
-### `/review` options
-
-```
-/review                      # interactive menu (or defaults to uncommitted changes)
-/review <instructions>       # custom review prompt
-/review --base <branch>      # review changes against a base branch (PR style)
-/review --commit <sha>       # review a specific commit
-/review --uncommitted        # review current staged/unstaged/untracked changes
-```
-
 ## Skills
 
 Skills live in `skills/` as `SKILL.md` playbooks. Load a skill by pointing your agent at its file; the agent follows the steps inside.
@@ -38,6 +21,7 @@ Skills live in `skills/` as `SKILL.md` playbooks. Load a skill by pointing your 
 | [`github-publish`](skills/github-publish/SKILL.md) | "publish to GitHub", "push to GitHub", "create a GitHub repo" | Analyzes the codebase, generates missing metadata files (README, .gitignore, LICENSE), creates the remote repo via `gh`, and pushes the first commit |
 | [`github-release`](skills/github-release/SKILL.md) | "set up releases", "add release workflow", "create release pipeline" | Detects the build system, generates a cross-platform GitHub Actions release workflow, creates a changelog, and updates the README with download links |
 | [`github-topics`](skills/github-topics/SKILL.md) | "add topics", "set repo tags", "update GitHub topics" | Analyzes the repo, recommends topics, validates them against GitHub, and applies them via `gh repo edit` |
+| [`architecture`](skills/architecture/SKILL.md) | "generate architecture doc", "create ARCHITECTURE.md", "document project architecture" | Explores the codebase and generates an `ARCHITECTURE.md` following the matklad standard — a concise map of modules and their relationships |
 
 ## Setup
 
@@ -48,25 +32,7 @@ npm install
 ## Development
 
 ```bash
-npm run typecheck   # strict TypeScript check (no emit)
-```
-
-Before submitting changes, run `typecheck` and manually exercise the affected command, including at least one failure path (e.g., running `/commit` outside a git repo).
-
-## Project Structure
-
-```
-pi-extensions/
-  init.ts            # /init command
-  commit.ts          # /commit command
-  review.ts          # /review command
-skills/
-  github-publish/
-    SKILL.md         # publish a local project to a new GitHub repository
-  github-release/
-    SKILL.md         # generate a cross-platform GitHub Actions release workflow
-  github-topics/
-    SKILL.md         # generate and apply GitHub repository topics
+npm run typecheck
 ```
 
 ## License
