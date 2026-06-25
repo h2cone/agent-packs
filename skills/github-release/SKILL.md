@@ -1,6 +1,6 @@
 ---
 name: github-release
-description: Generates a GitHub Actions workflow for cross-platform builds and GitHub Releases with changelog-based notes, and updates the README with download links. Triggers on "set up releases", "add release workflow", "create release pipeline", or configuring CI/CD for releases.
+description: Generates a GitHub Actions workflow for cross-platform builds and GitHub Releases with changelog-based notes, and adds a version-stable Installation section to the README. Triggers on "set up releases", "add release workflow", "create release pipeline", or configuring CI/CD for releases.
 ---
 
 Detect the project's language and build system, generate a cross-platform release workflow, ensure a changelog exists, and update the README with download instructions.
@@ -71,24 +71,23 @@ Ask the user to confirm the version number.
 
 ## Update README.md
 
-Add or update an **Installation** section with a download table:
+Add or update an **Installation** section. Do **not** hardcode per-asset download URLs or version-stamped archive filenames — they change on every release and force a README edit each time. Instead, link to the releases page (GitHub lists all assets there automatically) and describe the supported platforms generically:
 
 ```markdown
 ## Installation
 
-Download the latest release for your platform from
-[GitHub Releases](https://github.com/<owner>/<repo>/releases/latest).
+Download the build for your platform from the
+[latest release](https://github.com/<owner>/<repo>/releases/latest),
+then extract the archive and put the binary on your `PATH`.
 
-| Platform | Architecture | Download |
-|----------|-------------|----------|
-| Linux | x86_64 | `<project>-<tag>-x86_64-linux.tar.gz` |
-| Linux | arm64 | `<project>-<tag>-aarch64-linux.tar.gz` |
-| macOS | Apple Silicon | `<project>-<tag>-aarch64-darwin.tar.gz` |
-| macOS | Intel | `<project>-<tag>-x86_64-darwin.tar.gz` |
-| Windows | x86_64 | `<project>-<tag>-x86_64-windows.zip` |
+Prebuilt binaries are available for:
+
+- **Linux** — x86_64, arm64 (`.tar.gz`)
+- **macOS** — Apple Silicon, Intel (`.tar.gz`)
+- **Windows** — x86_64 (`.zip`)
 ```
 
-Use the `/releases/latest/download/` URL pattern so links always point to the most recent release. Adapt archive names to the detected language's target naming conventions.
+If you want a copy-paste install command, prefer one that resolves the latest tag at runtime rather than pinning a version — for example `gh release download --pattern '<project>-*-x86_64-linux.tar.gz'`, or a script that queries `/releases/latest`. This keeps the README stable across version bumps.
 
 ## Edge cases
 
