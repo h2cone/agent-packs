@@ -23,6 +23,7 @@ Skills live in `skills/` as `SKILL.md` playbooks. See [Install](#install) to add
 | [`github-release`](skills/github-release/SKILL.md) | "set up releases", "add release workflow", "create release pipeline" | Detects the build system, generates a cross-platform GitHub Actions release workflow, creates a changelog, and updates the README with download links |
 | [`github-topics`](skills/github-topics/SKILL.md) | "add topics", "set repo tags", "update GitHub topics" | Analyzes the repo, recommends topics, validates them against GitHub, and applies them via `gh repo edit` |
 | [`architecture`](skills/architecture/SKILL.md) | "generate architecture doc", "create ARCHITECTURE.md", "document project architecture" | Explores the codebase and generates an `ARCHITECTURE.md` following the matklad standard — a concise map of modules and their relationships |
+| [`design-pattern`](skills/design-pattern/SKILL.md) | "what design pattern should I use", "refactor with patterns", "analyze code for design patterns" | Diagnoses the codebase for problems the 19 *Game Programming Patterns* can solve, explains why each fits, and proposes a concrete application plan |
 
 ## Install
 
