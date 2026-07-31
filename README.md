@@ -1,16 +1,6 @@
 # agent-packs
 
-A collection of AI agent packs.
-
-## Pi Extensions
-
-Extensions live in `pi-extensions/` and are auto-discovered by [Pi](https://github.com/mariozechner/pi-coding-agent).
-
-| Command | Description |
-|---------|-------------|
-| `/init` | Scaffolds an `AGENTS.md` contributor guide for the current repository |
-| `/commit [instructions]` | Stages all changes, generates a commit message via the AI, and commits |
-| `/review [options]` | Runs a read-only code review with prioritized findings |
+A collection of reusable AI agent skills.
 
 ## Skills
 
@@ -47,18 +37,6 @@ Copy-Item $env:TEMP\ap\skills\git-commit $HOME\.agents\skills\ -Recurse -Force  
 ```
 
 Then trigger a skill by a phrase in the Trigger column above. The `github-*` skills also need `gh` authenticated.
-
-## Setup
-
-```bash
-npm install
-```
-
-## Development
-
-```bash
-npm run typecheck
-```
 
 ## License
 
