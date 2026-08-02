@@ -1,9 +1,9 @@
 ---
-name: design-pattern
-description: Diagnoses a codebase for problems that design patterns can solve, explains why each pattern fits, and proposes a concrete application plan. Grounded in the 19 patterns from Robert Nystrom's Game Programming Patterns — Command, Flyweight, Observer, Prototype, Singleton, State, Double Buffer, Game Loop, Update Method, Bytecode, Subclass Sandbox, Type Object, Component, Event Queue, Service Locator, Data Locality, Dirty Flag, Object Pool, Spatial Partition — applicable to games and general software. Triggers on "what design pattern should I use", "refactor with patterns", "analyze code for design patterns", "what's wrong with my architecture", or requests to map code smells to design patterns.
+name: game-programming-patterns
+description: Diagnoses a game codebase through the 19 patterns in Robert Nystrom's Game Programming Patterns - Command, Flyweight, Observer, Prototype, Singleton, State, Double Buffer, Game Loop, Update Method, Bytecode, Subclass Sandbox, Type Object, Component, Event Queue, Service Locator, Data Locality, Dirty Flag, Object Pool, Spatial Partition - explains why each fits, and proposes a concrete application plan. Triggers on "map these code smells to design patterns", "which Game Programming Pattern fits", or game architecture questions about frame loops, entity/component structure, spawning/churn, or spatial queries. Only for game and realtime interactive projects; not for general software and not a Gang-of-Four reference (no Factory, Strategy, Adapter, Decorator, Facade).
 ---
 
-Analyze a codebase through the lens of the 19 *Game Programming Patterns* and answer three questions for the user:
+Analyze a game codebase through the lens of the 19 *Game Programming Patterns* and answer three questions for the user:
 
 1. **What problems here can a design pattern solve, and which one?**
 2. **Why does that pattern solve the problem — here, in this code?**
@@ -17,7 +17,7 @@ Build a mental model before naming a single pattern:
 
 1. Read entry points, manifest, and existing docs (`README.md`, `ARCHITECTURE.md`, `CLAUDE.md`, `AGENTS.md`).
 2. Map the top-level structure — modules, packages, service boundaries.
-3. Trace one or two hot paths end-to-end (a frame loop, a request handler, a spawn path) to see how things couple.
+3. Trace one or two hot paths end-to-end (a frame loop, a spawn path, an input-to-action path) to see how things couple.
 4. Hunt for the **smells** in the index below. Note each with a concrete `file:line` and a one-line description of the pain it causes.
 
 ## Step 2 — Triage smells to candidate patterns
@@ -80,7 +80,7 @@ Present a structured report with three sections matching the three questions —
 - **Don't force patterns.** Every pattern adds structure; recommend one only when the pain is real and the **When to use** gate passes.
 - **Singleton is a smell, not a solution.** If the codebase already has singletons causing coupling, recommend the entry's alternatives (dependency injection, Subclass Sandbox accessor, Service Locator, or a plain static class) — don't introduce new ones.
 - **Optimization patterns need evidence.** Data Locality, Dirty Flag, Object Pool, Spatial Partition only on a measured problem.
-- **These are not game-only.** The patterns apply to any software; map the game examples to the user's domain.
+- **Scoped to games and realtime interactive systems.** This lens is for game/realtime codebases; map the book's examples to the user's game domain. Don't reach for it on general software where Gang-of-Four patterns (Factory, Strategy, Adapter, etc.) are the better fit.
 - **Ground everything in code.** Every problem, justification, and step cites `file:line`. No pattern-theory lectures.
 
 ## Edge cases
