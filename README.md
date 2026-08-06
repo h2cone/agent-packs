@@ -40,7 +40,7 @@ Then trigger a skill by a phrase in the Trigger column above. The `github-*` ski
 
 ## Pi Extensions
 
-`pi-extensions/` holds extensions for the [pi coding agent](https://github.com/earendil-works/pi-coding-agent). Each is a kebab-case directory with an `index.ts` entry point, no build step, and no npm dependencies.
+`pi-extensions/` holds extensions for the [pi coding agent](https://github.com/earendil-works/pi). Each is a kebab-case directory with an `index.ts` entry point, no build step, and no npm dependencies.
 
 | Extension | Command | Description |
 |-----------|---------|-------------|
