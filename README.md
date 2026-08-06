@@ -38,6 +38,16 @@ Copy-Item $env:TEMP\ap\skills\git-commit $HOME\.agents\skills\ -Recurse -Force  
 
 Then trigger a skill by a phrase in the Trigger column above. The `github-*` skills also need `gh` authenticated.
 
+## Pi Extensions
+
+`pi-extensions/` holds extensions for the [pi coding agent](https://github.com/earendil-works/pi-coding-agent). Each is a kebab-case directory with an `index.ts` entry point, no build step, and no npm dependencies.
+
+| Extension | Command | Description |
+|-----------|---------|-------------|
+| [`deep-research`](pi-extensions/deep-research/README.md) | `/deep-research <query>` | Bounded four-stage research (plan → claims → verify → cited report) with fail-closed `Verified`/`Partial` status, writing a `report.md` to `.pi/deep-research/` |
+
+Install an extension by symlinking it into `~/.pi/agent/extensions/` (or adding the path to `settings.json` `extensions`), then `/reload`. See the extension's README for details.
+
 ## License
 
 MIT

@@ -3,6 +3,8 @@
 ## Project Structure & Module Organization
 `skills/` contains reusable agent playbooks. Each skill lives in its own kebab-case directory with a `SKILL.md` entry point. Put detailed supporting guidance in that skill's `references/` directory when needed. Root files such as `README.md` and `LICENSE` define project-level documentation and licensing. There is no dedicated test or shared assets directory.
 
+`pi-extensions/` contains [pi coding agent](https://github.com/earendil-works/pi-coding-agent) extensions. Each lives in its own kebab-case directory with an `index.ts` entry point (default-exporting the `ExtensionAPI` factory), supporting modules alongside, and a `README.md` covering install, usage, and limitations. Extensions have no build step, no `package.json`, and no npm dependencies beyond what pi already provides (`@earendil-works/pi-coding-agent`, `@earendil-works/pi-ai`, `@earendil-works/pi-tui`). Relative imports between modules use explicit `.ts` extensions (loaded via jiti).
+
 ## Build, Test, and Development Commands
 This repository has no build step or automated test suite. After editing a skill, review its Markdown links and manually exercise any commands or workflows affected by the change, including a representative failure path when practical.
 
