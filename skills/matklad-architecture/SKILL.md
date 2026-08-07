@@ -1,5 +1,5 @@
 ---
-name: architecture
+name: matklad-architecture
 description: Generates an ARCHITECTURE.md for any codebase following the matklad standard — a concise, high-level map of modules and their relationships aimed at helping newcomers navigate the project. Triggers on "generate architecture doc", "create ARCHITECTURE.md", "document project architecture", or mapping codebase structure.
 ---
 
