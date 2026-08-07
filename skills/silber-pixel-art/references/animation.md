@@ -11,6 +11,7 @@ Distilled from Chapter 8 of *Pixel Art for Game Developers* (Silber, 2016). Anim
 - Fast motion
 - Game-specific constraints
 - Sprite preparation and chunk animation
+- Worked examples: idle cycle and cannon
 
 ## Frame rate and in-place animation
 
@@ -72,3 +73,17 @@ Animation for games differs from film. A film character is animated for the exac
 - **Dithering and animation are mortal enemies.** Dither textures shift frame to frame and flash badly. Don't dither anything that will animate.
 
 > For the broader craft, the book recommends Richard Williams' *The Animator's Survival Kit*.
+
+## Worked examples: idle cycle and cannon
+
+**Exercise 8.1 — a 2-frame idle** (from the shaded sprite in [light-and-depth.md](light-and-depth.md)):
+
+1. **Simplify first:** cut detail, cap each hue ramp at ~2 colors, put one arm + one leg in shadow for side-view limb disambiguation.
+2. Divide the sprite into **chunks** (layers or brushes) so whole sections move intact.
+3. Simplest idle: keep head + legs static; shift **torso + arms 1 pixel up** on frame 2 to fake breathing. Play at ~2 fps (500 ms/frame). A 1px shift is enough to breathe life into a static character.
+
+**Cannon (§8.4) — squash/stretch + anticipation:**
+
+- The "crappy" version is blast → rest (one frame of motion). Efficient, but characterless.
+- The alive version: fuse animation (**anticipation**) → **squash** the barrel + wheels (climax) → **stretch** (blast) → smoke settling + slight roll-back (**follow-through** / secondary).
+- Place the **most-squashed frame next to the most-stretched** for contrast. An iron object deforming still reads as impact, not comedy, in motion.

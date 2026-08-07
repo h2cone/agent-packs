@@ -9,6 +9,7 @@ Distilled from Chapter 5 of *Pixel Art for Game Developers* (Silber, 2016). The 
 - Curved lines
 - Anti-aliasing
 - Reuse: cut, paste, mirror, rotate
+- Worked example: line-drawing sprite
 
 ## The one-pixel rule
 
@@ -49,3 +50,30 @@ Anti-aliasing softens a staircase edge by inserting a blend color between the li
 Symmetry and repetition are free. Select a clean sub-shape (a leg, an arm, a half-curve), duplicate it, flip it, place it. This is the single biggest time-saver in pixel art and guarantees the mirrored half is identical to the source.
 
 > **Tool tip (book convention):** in GraphicsGale the right mouse button is an eyedropper while the pen tool is active. Most editors have an equivalent alt-click/eyedropper shortcut — learn it, because swapping colors mid-stroke is constant.
+
+## Worked example: line-drawing sprite
+
+**Exercise 5.1** — build a 32×64 line sprite (4-bit / 8-color palette). This figure is the through-line for color → shade → animate in later chapters.
+
+**Proportion scaffold (starting points, not dogma):**
+
+- Eyes sit **halfway between the top and bottom** of the head circle.
+- Nose bottom is **halfway between the eyes and the chin**.
+- Mouth is **halfway between the nose and the chin**.
+- Eyebrows: a couple of pixels above the eyes.
+- Ears: bottom ≈ nose level; top ≈ eye/eyebrow level.
+- Eye line moves up when looking up, down when looking down.
+
+**Build sequence:**
+
+1. New project: 32×64, 4-bit (8 colors keeps the exercise small). Zoom so the canvas fills the screen.
+2. Head: circle tool → clean the bottom curve (top can stay rough; hair covers it).
+3. Face: eyes (a couple of pixels each) on the halfway line; nose, mouth, eyebrows by the proportion rules.
+4. Torso: a simple rectangle.
+5. One leg + foot (simple).
+6. **Duplicate the leg → Flip Horizontal → place** (don't redraw). Adjust the join.
+7. One arm + hand: outline, delete the body-side vertical so it connects, a few pixels for a hand; sleeve by adding/erasing edge pixels.
+8. **Select → duplicate → flip → place** the arm; erase extra shoulder lines.
+9. Hair: *inner* outline (hair meets forehead) first, then *outer* outline (sides/top), ear nubbins. Clean up with the line rules above.
+
+**KISS throughout** — rough the whole figure before detailing any part, in case proportions need to change. Next: color it ([color.md](color.md)), shade it ([light-and-depth.md](light-and-depth.md)), animate a simplified version ([animation.md](animation.md)).

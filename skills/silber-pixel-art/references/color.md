@@ -10,6 +10,7 @@ Distilled from Chapter 6 of *Pixel Art for Game Developers* (Silber, 2016). Pixe
 - Hue, saturation, value, contrast
 - Choosing colors per element
 - Transparency
+- Worked example: coloring the line sprite
 
 ## Bit depth
 
@@ -57,3 +58,14 @@ Three independent axes, from the color picker:
 ## Transparency
 
 Reserve the **first slot in the palette for transparency** (the book's convention is magenta; any color works). Sprites are always rectangular files — the space around the object is the transparent color. The engine composites sprites over backgrounds by **layer priority**; transparency is what lets a non-rectangular character sit on a rectangular sprite sheet.
+
+## Worked example: coloring the line sprite
+
+**Exercise 6.1** — color the line-drawing sprite from [lines.md](lines.md).
+
+1. Build **one ramp per material** and lay ramps adjacently in the palette (e.g., jeans blues, shirt reds, flesh tones, hair browns).
+2. Flood-fill closed regions. Example read: saturated dark-red shirt, greyish-blue jeans, flesh tones, dark-brown hair, **one purple reused** for shoes + eyes (keeps the count down).
+3. Fill each region with a **midtone** base so shadow and highlight can be added later — not the darkest or lightest step.
+4. Adjust the drawing as needed (e.g., break a line that wrongly divides ear from head).
+
+Result: a flat-but-colored sprite ready for shading ([light-and-depth.md](light-and-depth.md)). Shapes must be closed or the fill tool leaks into the background.

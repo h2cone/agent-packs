@@ -11,8 +11,8 @@ Distilled from Chapter 9 of *Pixel Art for Game Developers* (Silber, 2016) — t
 - Tile library
 - Dithering
 - Terrain transitions: 9-slice vs. 3-tile
-- Top-down build order
-- Side-view build order
+- Worked example: top-down tile set
+- Worked example: side-view environment
 - Parallax and atmospheric color
 - Reuse and mirroring
 - Brick, windows, silhouettes
@@ -84,9 +84,9 @@ When two terrains meet (grass ↔ sand, grass ↔ water), you need transition ti
 
 Default to 3-tile; reach for 9-slice only when directional lighting across transitions really matters.
 
-## Top-down build order
+## Worked example: top-down tile set
 
-The book's top-down tile set (16×16, 32-color palette) is built in this order — reuse and flip at every step:
+**Exercise 9.1** — 16×16 tiles, ~256×128 canvas, 8-bit / ~32 colors used. Build in this order; reuse and flip at every step:
 
 1. **Palette** — magenta in slot 0 (transparency) + reserve slots; ramps per terrain (greens, blues, browns, grays, accent yellows/purples).
 2. **Base grass tile** — middle green, quasi-random darker/lighter dots, uniform, low contrast. Duplicate 3×3 to check tiling; fix any H/V alignment you spot.
@@ -102,9 +102,9 @@ The book's top-down tile set (16×16, 32-color palette) is built in this order �
 
 ~12 tiles can create whole scenes; the full set is ~80 tiles.
 
-## Side-view build order
+## Worked example: side-view environment
 
-Work **back to front** (farthest layer first):
+**Exercise 9.2** — 32×32 tiles, ~640×480 work area, ~80 tiles, fewer than 50 colors. Work **back to front** (farthest layer first):
 
 1. **Sky** — a ramp that shifts **hue AND value AND saturation** (e.g., purple→blue). Lay it as horizontal bands that **get smaller toward the top** (atmosphere). Tighter gradients blend better than high-contrast ones. Dither the bands together (organic dither, per-band 32×32).
 2. **Distant mountains** — block out as rectangles in the second-lightest sky color (atmospheric perspective), then add **profile tiles** for the silhouette. Reuse the same tiles **two shades darker** for a closer range and add peak highlights with the in-between color.
@@ -135,5 +135,7 @@ Work **back to front** (farthest layer first):
 ## Tile management
 
 Organize the tile set **by type** (all grass together, all sand together), not by layer priority. Type-organization makes the right tile easy to find; priority-order is efficient for the machine but unusable for the human.
+
+**Masking** (when the editor supports it): lock drawing to one palette color so you can shade one material without disturbing others — useful for brick mortar, moss in crevices, and multi-ramp tiles.
 
 The book's full side-view environment: **~80 tiles**, one 320×256 image, **fewer than 50 colors** — enough to build countless scenes.

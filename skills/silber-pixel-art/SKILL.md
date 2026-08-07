@@ -1,5 +1,5 @@
 ---
-name: pixel-art
+name: silber-pixel-art
 description: Applies the universal pixel-art craft from Daniel Silber's *Pixel Art for Game Developers* (CRC Press, 2016) to a 2D game project — planning resolution, palette, and tile size up front; drawing sprites with clean lines and consistent light; building reusable tiled environments; animating with anticipation, follow-through, and squash-and-stretch; and avoiding the common defects (banding, super pixels, flash/pillow shading). Grounded in the book's chapters on lines, color, light and perspective, animation, tiled backgrounds, and anti-patterns, with the detailed core prompts in references/. Triggers on "pixel art for my game", "create pixel art sprites", "build a tile set", "pixel art animation", "palette for pixel art", "review my pixel art", or requests to apply pixel-art best practices to a 2D game.
 ---
 
@@ -25,12 +25,16 @@ Keep the whole project consistent at the chosen level. **KISS — keep it simple
 
 | Task / request | Read |
 |---|---|
-| Drawing outlines, diagonals, curves, anti-aliasing | [`references/lines.md`](references/lines.md) |
+| Quick decisions, thresholds, smell-tests | [`references/cheatsheet.md`](references/cheatsheet.md) |
+| Term lookup (banding, palette swap, 3-tile, …) | [`references/glossary.md`](references/glossary.md) |
+| Drawing outlines, diagonals, curves, anti-aliasing; sprite scaffold | [`references/lines.md`](references/lines.md) |
 | Building a palette, ramps, palette swapping, hue/saturation/value/contrast, transparency | [`references/color.md`](references/color.md) |
 | Shading form, cast shadows, atmospheric & linear perspective, depth | [`references/light-and-depth.md`](references/light-and-depth.md) |
 | Walk/idle cycles, pixel flashing, anticipation, follow-through, squash & stretch, game-specific constraints | [`references/animation.md`](references/animation.md) |
 | Tile sets, tiling textures, dithering, 9-slice vs 3-tile transitions, top-down & side-view builds, parallax | [`references/tiled-backgrounds.md`](references/tiled-backgrounds.md) |
 | Reviewing art / spotting defects: banding, super pixels, flash shading, weak palettes, no texture | [`references/anti-patterns.md`](references/anti-patterns.md) |
+
+Topic references include the book's key **worked examples** (line sprite → color → shade → idle; top-down and side-view tile sets). Prefer those sequences when teaching or building a first asset end-to-end.
 
 ## Always-relevant core rules
 
@@ -67,7 +71,7 @@ Pixel-art production:
 
 ## Source
 
-The craft in `references/` is distilled from *Pixel Art for Game Developers* (Daniel Silber, CRC Press, 2016; ISBN 978-1-4822-5231-6).
+The craft in `references/` is distilled from *Pixel Art for Game Developers* (Daniel Silber, CRC Press, 2016; ISBN 978-1-4822-5231-6). Decision rules live in [`cheatsheet.md`](references/cheatsheet.md); term definitions in [`glossary.md`](references/glossary.md).
 
 ## Principles
 

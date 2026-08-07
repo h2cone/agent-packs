@@ -9,6 +9,7 @@ Distilled from Chapter 7 of *Pixel Art for Game Developers* (Silber, 2016). Thes
 - Shadow-direction consistency
 - Atmospheric perspective
 - Linear perspective
+- Worked example: shading the colored sprite
 
 ## Shading (form)
 
@@ -67,3 +68,18 @@ For structures and scale:
 A single vanishing point is enough for most game pixel-art situations. Multiple points are possible but rarely worth it here.
 
 > These four tools — shading, cast shadow, atmospheric perspective, linear perspective — give depth. Treat them as rules that help the eye, then break them where production demands it.
+
+## Worked example: shading the colored sprite
+
+**Exercise 7.1** — shade the midtone-filled sprite from [color.md](color.md). Apply "surfaces facing the light are brightest":
+
+1. Head casts a shadow on the shirt; round the shirt edges and add fold lines.
+2. Shadow the face: bottom, under the eyes, under the hairline, under the nose, underside of arms/hands.
+3. Light the thighs (so shins read as shadowed); add pocket/seam detail with the two darkest blues of the jeans ramp.
+4. Shadow the hair and shoes.
+5. Add **highlights** where surfaces protrude toward the light: side of the nose, cheekbones, back of hands; lighten the shirt's lit parts and the tops of the shoes.
+6. Light the top of the hair.
+
+A flat colored sprite now has form. Diagnostic for wrong shadow direction: find the one object whose shading disagrees with the scene light — usually a sprite flipped on the x-axis without fixing its shading.
+
+Next: simplify and animate ([animation.md](animation.md)).
