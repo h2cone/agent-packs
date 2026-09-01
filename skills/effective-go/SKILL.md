@@ -1,6 +1,6 @@
 ---
 name: effective-go
-description: "Knowledge base from \"Effective Go\" by The Go Authors. Use when writing idiomatic Go: formatting, naming, control structures, functions, data (slices/maps/interfaces), concurrency (goroutines/channels), errors, and embedding; or when referencing a specific section."
+description: "Knowledge base from \"Effective Go\" by The Go Authors, plus a 1.18–1.22 syntax/stdlib supplement. Use when writing idiomatic Go: formatting, naming, control structures, functions, data, concurrency, errors, embedding; or when choosing modern replacements (any, errors.Is, slices, range-over-int, loopvar, ServeMux patterns)."
 ---
 
 <!-- argument-hint: [topic, framework name, or chapter number] -->
@@ -8,13 +8,14 @@ description: "Knowledge base from \"Effective Go\" by The Go Authors. Use when w
 # Effective Go
 **Author**: The Go Authors (Go team) | **Length**: ~33 pages / ~16.5k words | **Sections**: 17 | **Generated**: 2026-08-06
 
-> Source: go.dev/doc/effective_go. Written for Go's 2009 release and not actively updated; covers the core language only (no generics, modules, or post-2009 libraries).
+> Source: go.dev/doc/effective_go. The chapters distill the 2009 document (core language, not generics/modules). [references/modern.md](references/modern.md) covers the 1.18–1.22 syntax and stdlib that agents otherwise emit from outdated training data.
 
 ## How to Use This Skill
 
-- **Without arguments** - load core frameworks for reference (below).
-- **With a topic** - ask about `slices`, `channels`, `interfaces`, `defer`, etc.; I find and read the relevant chapter before answering.
-- **With a chapter** - ask for `ch09` (Data) or `ch15` (Concurrency); I load that chapter file.
+- **Writing or editing Go** - read [references/modern.md](references/modern.md) first. Apply every rule whose **Since** is ≤ the module `go` line. Those rules win over older snippets in the chapters.
+- **Without arguments** - load core frameworks below. Do **not** load all 17 chapters.
+- **With a topic** - ask about `slices`, `channels`, `interfaces`, `defer`, etc.; load only the matching chapter (and modern.md when the topic is syntax/stdlib).
+- **With a chapter** - ask for `ch09` (Data) or `ch15` (Concurrency); load that chapter file.
 - **Browse** - ask "what chapters do you have?" to see the full index.
 
 When you ask about a topic not in Core Frameworks below, I read the relevant chapter file before answering.
@@ -33,7 +34,7 @@ When you ask about a topic not in Core Frameworks below, I read the relevant cha
 
 **Keep the happy path down the page.** `if`/`switch` take an init statement (`if err := f(); err != nil`). When a guard body ends in `return`/`break`/`continue`, *drop the `else`* - eliminate error cases as they arise. `:=` lets one `err` flow through a chain of guards in the same scope. (Ch 7)
 
-**`for` is the only loop; `switch` is a condition ladder.** `for init; cond; post {}` / `for cond {}` / `for {}`. `range` iterates collections and decodes strings to runes; drop the second value for key-only, use `_` for value-only. `switch {}` (no expression) switches on `true` - the idiomatic `if-else-if`. No fallthrough; comma-separated cases. Label a loop and `break Loop` to exit it from inside a `switch`. Type switch: `switch t := x.(type)`. (Ch 7)
+**`for` is the only loop; `switch` is a condition ladder.** `for init; cond; post {}` / `for cond {}` / `for {}`. On Go 1.22+, `for i := range n` replaces `for i := 0; i < n; i++`. `range` also iterates collections and decodes strings to runes; drop the second value for key-only, use `_` for value-only. Loop variables are per-iteration as of 1.22 — do not copy `v := v` before a goroutine. `switch {}` (no expression) switches on `true` - the idiomatic `if-else-if`. No fallthrough; comma-separated cases. Label a loop and `break Loop` to exit it from inside a `switch`. Type switch: `switch t := x.(type)` on `any`, not `interface{}`. (Ch 7, modern.md)
 
 **Multiple returns replace in-band errors and out-params.** Return `(value, error)`. Named result parameters document the return and enable naked `return`. (Ch 8)
 
@@ -55,7 +56,7 @@ When you ask about a topic not in Core Frameworks below, I read the relevant cha
 
 **Channels synchronize; buffered channels limit throughput.** Unbuffered = synchronous handshake. `make(chan int, N)` is a semaphore of capacity N. Gate goroutine *creation* (or use a fixed pool) to bound resources - don't just limit running count. Channels are first-class - embed a reply channel for parallel demux. `select`/`default` gives non-blocking ops (leaky-buffer free lists). Concurrency (structure) ≠ parallelism (speed). (Ch 15)
 
-**Return descriptive `error`s; reserve `panic` for the unrecoverable.** Implement `error` with a richer struct (`PathError{Op, Path, Err}`) when callers may inspect cause; type-assert to recover specific failures. `recover` works only in deferred functions - isolate failing goroutines or convert internal panics to errors at the package boundary. Never expose panics to clients. (Ch 16)
+**Return descriptive `error`s; reserve `panic` for the unrecoverable.** Implement `error` with a richer struct (`PathError{Op, Path, Err}`) when callers may inspect cause. Inspect with `errors.Is` / `errors.As` (wrap with `%w`); do not use `err == target` or a bare type-assert on a wrapped error. `recover` works only in deferred functions - isolate failing goroutines or convert internal panics to errors at the package boundary. Never expose panics to clients. (Ch 16, modern.md)
 
 ---
 
@@ -69,7 +70,7 @@ When you ask about a topic not in Core Frameworks below, I read the relevant cha
 | [ch04](chapters/ch04-commentary.md) | Commentary | `//` vs `/* */`, doc comments precede decl |
 | [ch05](chapters/ch05-names.md) | Names | Capitalization=visibility, no stutter, `Owner` not `GetOwner`, `-er` interfaces, MixedCaps |
 | [ch06](chapters/ch06-semicolons.md) | Semicolons | Automatic insertion, brace-on-same-line |
-| [ch07](chapters/ch07-control-structures.md) | Control structures | `if`-init, omit `else`, `for`/`range`, `switch{}`, type switch, labeled break |
+| [ch07](chapters/ch07-control-structures.md) | Control structures | `if`-init, omit `else`, `for`/`range`/`range n`, `switch{}`, type switch, labeled break |
 | [ch08](chapters/ch08-functions.md) | Functions | Multiple returns, named results, `defer` |
 | [ch09](chapters/ch09-data.md) | Data | `new`/`make`, composite literals, slices, `append`, maps, comma-ok, `fmt`, Stringer |
 | [ch10](chapters/ch10-initialization.md) | Initialization | Constants, `iota`, runtime `var`, `init` |
@@ -78,8 +79,8 @@ When you ask about a topic not in Core Frameworks below, I read the relevant cha
 | [ch13](chapters/ch13-blank-identifier.md) | The blank identifier | Discard returns, side-effect import, compile-time interface check |
 | [ch14](chapters/ch14-embedding.md) | Embedding | Interface/struct embedding, method promotion, not subclassing |
 | [ch15](chapters/ch15-concurrency.md) | Concurrency | Share by communicating, goroutines, channels, semaphore, fixed pool, leaky buffer |
-| [ch16](chapters/ch16-errors.md) | Errors | `error` interface, `PathError`, `panic`/`recover`, panic-to-error boundary |
-| [ch17](chapters/ch17-web-server.md) | A web server | `flag`, `HandlerFunc`, `ListenAndServe`, `template.Must` |
+| [ch16](chapters/ch16-errors.md) | Errors | `error` interface, `PathError`, `errors.Is`/`As`, `panic`/`recover`, panic-to-error boundary |
+| [ch17](chapters/ch17-web-server.md) | A web server | `flag`, ServeMux patterns, `HandlerFunc`, `ListenAndServe`, `template.Must` |
 
 ## Topic Index
 
@@ -95,15 +96,17 @@ When you ask about a topic not in Core Frameworks below, I read the relevant cha
 - **defer** -> ch08, ch16
 - **doc comment** -> ch04
 - **embedding** -> ch14
-- **error** -> ch16
+- **error** -> ch16, [modern.md](references/modern.md)
+- **errors.Is / errors.As** -> [modern.md](references/modern.md)
 - **exported / capitalization** -> ch05
 - **fmt verbs** -> ch09
-- **for / range** -> ch07
+- **for / range / range-over-int** -> ch07, [modern.md](references/modern.md)
 - **function literal / closure** -> ch15
 - **getter** -> ch05
 - **gofmt** -> ch03
 - **goroutine** -> ch15
-- **Handler / HandlerFunc** -> ch12, ch17
+- **Handler / HandlerFunc / ServeMux patterns** -> ch12, ch17, [modern.md](references/modern.md)
+- **loopvar (1.22 per-iteration)** -> ch07, ch15, [modern.md](references/modern.md)
 - **if (init, omit else)** -> ch07
 - **init function** -> ch10
 - **interface** -> ch12
@@ -118,7 +121,7 @@ When you ask about a topic not in Core Frameworks below, I read the relevant cha
 - **rune** -> ch07, ch09
 - **select** -> ch15
 - **semicolons** -> ch06
-- **slice** -> ch09
+- **slice / slices.Contains** -> ch09, [modern.md](references/modern.md)
 - **Stringer** -> ch09
 - **switch (on true / type switch)** -> ch07, ch12
 - **type assertion** -> ch12, ch16
@@ -126,6 +129,7 @@ When you ask about a topic not in Core Frameworks below, I read the relevant cha
 
 ## Supporting Files
 
+- [references/modern.md](references/modern.md) - 1.18–1.22 emit rules (`any`, `errors.Is`, `slices`, `range n`, loopvar, ServeMux)
 - [glossary.md](glossary.md) - all key terms with definitions
 - [patterns.md](patterns.md) - all techniques and idioms, by situation
 - [cheatsheet.md](cheatsheet.md) - decision rules, quick tables, and tells
@@ -134,4 +138,4 @@ When you ask about a topic not in Core Frameworks below, I read the relevant cha
 
 ## Scope & Limits
 
-This skill covers *Effective Go* only - the core language as of Go's 2009 release. It does **not** cover generics, modules, or libraries added after 2009. For modern Go features, combine with project-specific tools or current Go docs. For hands-on work in your codebase, use this skill alongside the project's own conventions.
+Chapters cover *Effective Go* - how to think, name, and structure Go as of the 2009 document. [references/modern.md](references/modern.md) covers the small 1.18–1.22 set that agents otherwise generate from outdated training data. This skill still does **not** cover generics-as-language (constraints, type sets), module authoring, slog, iterators, or anything 1.23+. Honor the module `go` line: do not emit APIs newer than it. For hands-on work, use this skill alongside the project's own conventions.

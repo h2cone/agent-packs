@@ -8,6 +8,7 @@ Skills live in `skills/` as `SKILL.md` playbooks. See [Install](#install) to add
 
 | Skill | Trigger | Description |
 |-------|---------|-------------|
+| [`effective-go`](skills/effective-go/SKILL.md) | "idiomatic Go", "effective go", "write this in Go", "gofmt naming channels errors" | Distills *Effective Go* (naming, embedding, CSP, panic policy) plus a 1.18–1.22 emit layer (`any`, `errors.Is`, `slices`, `range n`, loopvar, ServeMux patterns) |
 | [`git-commit`](skills/git-commit/SKILL.md) | "commit", "generate commit message", "git commit" | Pulls from the tracked upstream, stages all changes, reads the diff, and commits with an AI-generated multi-line message |
 | [`github-publish`](skills/github-publish/SKILL.md) | "publish to GitHub", "push to GitHub", "create a GitHub repo" | Analyzes the codebase, generates missing metadata files (README, .gitignore, LICENSE), creates the remote repo via `gh`, and pushes the first commit |
 | [`github-release`](skills/github-release/SKILL.md) | "set up releases", "add release workflow", "create release pipeline" | Detects the build system, generates a cross-platform GitHub Actions release workflow, creates a changelog, and updates the README with download links |
