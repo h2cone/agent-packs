@@ -33,7 +33,7 @@ Go's slogan: **"Do not communicate by sharing memory; instead, share memory by c
 - **Concurrency vs. parallelism**: Concurrency = structuring a program as independently executing components; parallelism = executing calculations in parallel for speed. Go is a *concurrent* language, not a parallel one; not all parallel problems fit its model.
 - **`runtime.NumCPU()` / `runtime.GOMAXPROCS(0)`**: hardware cores vs. user-configured parallelism; prefer the latter to honor the user's request.
 - **`select` with `default`**: makes a channel operation non-blocking; the `default` case runs when no other case is ready.
-- **Loop-variable capture (pre-1.22 bug)**: the loop variable is shared across goroutines - capture it explicitly or use Go 1.22+ per-iteration semantics.
+- **Loop variables are per-iteration as of Go 1.22**: do not write `item := item` before a goroutine. Pre-1.22 the loop variable was shared and that copy was required; treat it as history unless go.mod is older than 1.22. See [modern.md](../references/modern.md).
 
 ## Mental Models
 - Think of a channel as both a queue *and* a synchronizer: sending/receiving is the handshake.
@@ -45,6 +45,7 @@ Go's slogan: **"Do not communicate by sharing memory; instead, share memory by c
 - **Spawning a goroutine per request while only limiting *running* ones**: unbounded goroutine growth; gate creation or use a fixed pool.
 - **Confusing concurrency with parallelism**: structuring concurrently doesn't guarantee parallel speedup.
 - **Blocking on a channel without a `default` when you wanted non-blocking**: use `select`/`default`.
+- **`item := item` before `go` on Go 1.22+**: unnecessary; per-iteration variables already exist.
 
 ## Code Examples
 ```go

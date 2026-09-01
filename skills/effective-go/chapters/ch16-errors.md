@@ -10,9 +10,10 @@ Go's multiple-return-values feature makes detailed error reporting easy: return 
 - **Rich error types behind the `error` interface**: Implement `error` with a struct that carries context.
   - When to use: When callers may want to inspect *why* it failed.
   - How: `type PathError struct { Op, Path string; Err error }` with `Error()` returning `"open /etc/passwx: no such file or directory"`. Error strings should identify origin (prefix like `"image: unknown format"`).
-- **Type assertion to inspect a specific error**: Use a comma-ok assertion to branch on a concrete error type and its fields.
+- **Inspect errors with `errors.Is` / `errors.As`**: Wrap with `fmt.Errorf("…: %w", err)` so callers can see the cause. Bare `err == target` and type-asserting a wrapped error miss the chain.
   - When to use: Recoverable failures that need the underlying cause.
-  - How: `if e, ok := err.(*os.PathError); ok && e.Err == syscall.ENOSPC { deleteTempFiles(); continue }`.
+  - How: `if errors.Is(err, fs.ErrNotExist) { … }`. For a rich type: `var e *os.PathError; if errors.As(err, &e) && errors.Is(e.Err, syscall.ENOSPC) { deleteTempFiles(); continue }`.
+  - History: Effective Go showed `if e, ok := err.(*os.PathError); ok && e.Err == syscall.ENOSPC`. That only works on the exact concrete value, not a wrapped error. See [modern.md](../references/modern.md).
 - **`panic` for the unrecoverable**: `panic(arg)` creates a run-time error that stops the program (unless recovered).
   - When to use: Impossible states (e.g., a loop that can't converge), or init that truly can't set up.
   - How: `panic(fmt.Sprintf("CubeRoot(%g) did not converge", x))`. Real libraries should *avoid* panic - if a problem can be masked, keep running. Init-time setup failure is a reasonable exception.
@@ -37,6 +38,7 @@ Go's multiple-return-values feature makes detailed error reporting easy: return 
 ## Anti-patterns
 - **Returning bare nil/boolean instead of a descriptive `error`**: callers can't report or recover.
 - **Using `panic` for ordinary, handleable errors in a library**: return an `error` instead.
+- **`err == os.ErrNotExist` or `err.(*os.PathError)` on a wrapped error**: use `errors.Is` / `errors.As`.
 - **Letting panics escape a package API**: violates the convention; clients can't rely on them.
 - **Catching *every* panic silently**: re-panic unexpected types so real bugs aren't swallowed.
 
@@ -52,13 +54,14 @@ func (e *PathError) Error() string {
     return e.Op + " " + e.Path + ": " + e.Err.Error()
 }
 
-// Inspect a specific error and recover
+// Inspect a specific error and recover (errors.As / errors.Is, not ==)
 for try := 0; try < 2; try++ {
     file, err = os.Create(filename)
     if err == nil {
         return
     }
-    if e, ok := err.(*os.PathError); ok && e.Err == syscall.ENOSPC {
+    var e *os.PathError
+    if errors.As(err, &e) && errors.Is(e.Err, syscall.ENOSPC) {
         deleteTempFiles()
         continue
     }
@@ -75,7 +78,7 @@ func safelyDo(work *Work) {
     do(work)
 }
 ```
-- **What it demonstrates**: a contextual error type, type-asserted recovery, and goroutine isolation via `recover`.
+- **What it demonstrates**: a contextual error type, `errors.As`/`errors.Is` recovery, and goroutine isolation via `recover`.
 
 ## Worked Example
 The `Compile` panic-to-error pattern. A regex parser reports parse errors by `panic`-ing with a local `Error` type (`type Error string; func (e Error) Error() string { return string(e) }`). Deep in parsing, `re.error("'*' illegal at start of expression")` panics. `Compile` defers a recovery:
@@ -96,7 +99,7 @@ If `doParse` panics with an `Error`, the deferred function sets the named return
 ## Key Takeaways
 1. Return `(value, error)`; make the error descriptive and origin-tagged.
 2. Implement `error` with a richer struct when callers need to inspect cause.
-3. Use comma-ok type assertions to branch on specific error types.
+3. Inspect cause with `errors.Is` / `errors.As`; wrap with `%w`. Comma-ok type asserts only see the exact concrete value.
 4. `panic` is for the unrecoverable (and rare init failures); libraries should otherwise avoid it.
 5. `recover` works only in deferred functions - use it to isolate goroutines or convert internal panics to errors.
 6. Never expose panics across a package API; re-panic unexpected types so bugs surface.
