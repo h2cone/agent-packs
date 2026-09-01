@@ -13,9 +13,9 @@ Go's control structures resemble C's but differ in important ways: no `do` or `w
 - **`for` unifies `for`/`while`/`do-while`**: Three forms, only one with semicolons.
   - When to use: Every loop.
   - How: `for init; cond; post {}` (C for), `for cond {}` (C while), `for {}` (C `for(;;)`).
-- **`range` for iteration**: Over array, slice, string, map, or channel.
-  - When to use: Walking a collection.
-  - How: `for k, v := range x {}`; drop the second to get only key/index; use `_` to discard the first and keep only the value.
+- **`range` for iteration**: Over array, slice, string, map, channel, or (Go 1.22+) an integer `n`.
+  - When to use: Walking a collection, or counting `0..n-1`.
+  - How: `for k, v := range x {}`; drop the second to get only key/index; use `_` to discard the first and keep only the value. Integer: `for i := range n {}` instead of `for i := 0; i < n; i++`.
 - **`switch` on `true`**: A switch with no expression switches on `true` - the idiomatic `if-else-if` chain.
   - When to use: Multi-branch conditions.
   - How: `switch { case 'a' <= c && c <= 'f': ... }`. No automatic fallthrough; cases can be comma-separated lists.
@@ -40,7 +40,8 @@ Go's control structures resemble C's but differ in important ways: no `do` or `w
 - **Nesting happy-path code inside `else` after a guard that returns**: Drop the `else`.
 - **Using `if-else-if` chains where a `switch {}` reads better**.
 - **Expecting fallthrough in `switch`**: Go has none (use comma-separated cases instead).
-- **Forgetting the loop-variable capture bug**: pre-1.22, the loop variable is shared across goroutines (closures capture one variable).
+- **Copying the loop variable on Go 1.22+** (`item := item` before `go func()`): per-iteration variables are the default; the copy is pre-1.22 history. Keep it only when `go` in go.mod is older than 1.22.
+- **C-style `for i := 0; i < n; i++` when the index is `0..n-1`**: write `for i := range n` (Go 1.22+).
 
 ## Code Examples
 ```go
@@ -91,6 +92,7 @@ Loop:
 | key + value | `for k, v := range x` |
 | key only | `for k := range x` |
 | value only | `for _, v := range x` |
+| integer `n` (Go 1.22+) | `for i := range n` |
 
 ## Worked Example
 Turning an `if-else-if` chain into a `switch` and using a type switch. The `unhex` function maps a hex byte to its value:
@@ -109,7 +111,7 @@ func unhex(c byte) byte {
 ```
 And a type switch that gives each clause a typed variable:
 ```go
-var t interface{}
+var t any
 t = functionOfSomeType()
 switch t := t.(type) {
 case bool:
@@ -125,7 +127,7 @@ Applied: prefer `switch {}` over a long `if-else-if`; prefer a type switch over 
 ## Key Takeaways
 1. `if`/`switch` take an init statement; use it to scope `err` to its test.
 2. Drop `else` when the guard returns - keep the happy path un-indented.
-3. `for` is the only loop; `range` iterates collections and decodes strings to runes.
+3. `for` is the only loop; `range` iterates collections, decodes strings to runes, and (1.22+) counts `for i := range n`.
 4. `switch` switches on `true` when given no expression; no fallthrough; comma-separated cases.
 5. Use a label to `break` an outer loop from inside a `switch`.
 6. `:=` lets one `err` be reused across successive guards in the same scope.

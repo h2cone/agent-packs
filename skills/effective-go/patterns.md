@@ -151,8 +151,33 @@ Concrete techniques and idioms from the document. Apply by situation.
 
 ## Rich error wrapping
 **When to use**: Callers may inspect cause.
-**How**: `type PathError struct{ Op, Path string; Err error }` implementing `Error()`.
-**Trade-offs**: Type-assert to recover specific failures.
+**How**: `type PathError struct{ Op, Path string; Err error }` implementing `Error()`; wrap with `fmt.Errorf("open %s: %w", path, err)` so `errors.Is`/`errors.As` see the cause.
+**Trade-offs**: `errors.As` recovers the concrete type; `==` and a bare type-assert miss wrapped errors.
+
+## `any` instead of `interface{}`
+**When to use**: Empty interface (Go 1.18+).
+**How**: `var t any`; type switch `switch t := t.(type)`.
+**Trade-offs**: Same type as `interface{}`; `any` is the name to emit.
+
+## `slices.Contains` instead of a search loop
+**When to use**: Membership test on a slice (Go 1.21+).
+**How**: `found := slices.Contains(items, want)`.
+**Trade-offs**: Extra `"slices"` import; prefer this over a handwritten `for`.
+
+## Range over integer
+**When to use**: Index runs `0..n-1` (Go 1.22+).
+**How**: `for i := range n { work(i) }`.
+**Trade-offs**: Keep C-style `for` for strides, reverse, or a non-range stop condition.
+
+## Loopvar: do not copy on 1.22+
+**When to use**: Goroutine/closure launched from a `for`.
+**How**: `for _, item := range items { go func() { process(item) }() }`.
+**Trade-offs**: Pre-1.22 required `item := item`; keep that only when go.mod is older than 1.22.
+
+## ServeMux method+path patterns
+**When to use**: HTTP routes on Go 1.22+.
+**How**: `mux.HandleFunc("GET /item/{id}", item)` then `id := r.PathValue("id")`.
+**Trade-offs**: `http.Handle("/", http.HandlerFunc(f))` is the 2009 default-mux skeleton, not the 1.22+ default.
 
 ## `panic`/`recover` isolation
 **When to use**: Keep one failing goroutine from killing the program.
