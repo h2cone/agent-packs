@@ -40,7 +40,7 @@ Go's control structures resemble C's but differ in important ways: no `do` or `w
 - **Nesting happy-path code inside `else` after a guard that returns**: Drop the `else`.
 - **Using `if-else-if` chains where a `switch {}` reads better**.
 - **Expecting fallthrough in `switch`**: Go has none (use comma-separated cases instead).
-- **Copying the loop variable on Go 1.22+** (`item := item` before `go func()`): per-iteration variables are the default; the copy is pre-1.22 history. Keep it only when `go` in go.mod is older than 1.22.
+- **Redundant copies of loop variables declared with `:=` on Go 1.22+** (`item := item` before `go func()`): those variables are already per-iteration. Keep a copy when capturing an iteration's value if the loop uses `=` or the owning go.mod is older than 1.22.
 - **C-style `for i := 0; i < n; i++` when the index is `0..n-1`**: write `for i := range n` (Go 1.22+).
 
 ## Code Examples

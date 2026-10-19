@@ -4,9 +4,9 @@ High-ROI syntax and stdlib replacements that coding agents get wrong because tra
 
 ## Protocol
 
-1. Read the module's `go` line (`go.mod` / `go.work`). If missing, assume a current stable toolchain and still prefer these defaults.
+1. Read the `go` line from the `go.mod` that owns the target package, including in a multi-module workspace. The `go.work` directive sets the workspace's minimum toolchain version; it does not override each module's language version. If the module's `go` line is missing, assume a current stable toolchain and still prefer these defaults. See the [go directive reference](https://go.dev/doc/modules/gomod-ref#go).
 2. Apply every rule below whose **Since** is ≤ that version. Treat them as authoritative even when nearby code is older.
-3. Skip a rule only when it would not compile on that version.
+3. Skip a rule when its stated preconditions are not met or it would not compile on that version.
 4. Do **not** load all 17 chapters to apply these. Load a chapter only when the topic index says so.
 5. Do **not** invent 1.23+ APIs here (iterators, `WaitGroup.Go`, `json/v2`, …). Stay in 1.18–1.22.
 
@@ -16,7 +16,7 @@ High-ROI syntax and stdlib replacements that coding agents get wrong because tra
 | `errors_is` | 1.13 | Critical | yes |
 | `slices_contains` | 1.21 | Critical | yes |
 | `range_over_int` | 1.22 | Critical | yes |
-| `loopvar_capture` | 1.22 | High | yes (deletes the copy) |
+| `loopvar_capture` | 1.22 | High | yes (for variables declared with `:=`) |
 | `http_servemux_patterns` | 1.22 | High | no |
 
 ---
@@ -116,10 +116,10 @@ Keep `for init; cond; post` when the index does not run `0..n-1` (stride, revers
 
 ## `loopvar_capture` (1.22, High)
 
-Go 1.22 gives each iteration its own variables. **Do not** write `v := v` / `item := item` before launching a goroutine.
+On Go 1.22+, loop variables declared with `:=` are new for each iteration. For those variables, omit redundant `v := v` / `item := item` copies before launching a goroutine. A range clause using `=` assigns to existing variables instead; keep a per-iteration copy when a closure must capture that iteration's value. See the [range clause specification](https://go.dev/ref/spec#For_statements_with_range_clause).
 
 ```go
-// before (pre-1.22 workaround — do not emit on 1.22+)
+// before (pre-1.22 workaround for variables declared with :=)
 for _, item := range items {
     item := item
     go func() { process(item) }()
@@ -131,7 +131,17 @@ for _, item := range items {
 }
 ```
 
-Pre-1.22, the loop variable was reused and closures captured one variable; that copy was required. Teach it as history, not current practice. If `go` in `go.mod` is older than 1.22, keep the copy.
+For assignment-form loops, keep the copy even on Go 1.22+:
+
+```go
+var item int
+for _, item = range items { // items is a []int
+    item := item
+    go func() { process(item) }()
+}
+```
+
+If `go` in the owning `go.mod` is older than 1.22, variables declared with `:=` are also reused; keep the copy when capturing an iteration's value. Passing the value as an explicit goroutine argument is another option in either case.
 
 ---
 

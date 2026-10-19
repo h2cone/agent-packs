@@ -169,10 +169,10 @@ Concrete techniques and idioms from the document. Apply by situation.
 **How**: `for i := range n { work(i) }`.
 **Trade-offs**: Keep C-style `for` for strides, reverse, or a non-range stop condition.
 
-## Loopvar: do not copy on 1.22+
-**When to use**: Goroutine/closure launched from a `for`.
+## Loopvar: omit redundant copies for `:=` on 1.22+
+**When to use**: Capturing an iteration's value in a goroutine/closure when the loop declares the variable with `:=` and the owning go.mod is 1.22+.
 **How**: `for _, item := range items { go func() { process(item) }() }`.
-**Trade-offs**: Pre-1.22 required `item := item`; keep that only when go.mod is older than 1.22.
+**Trade-offs**: Keep `item := item` (or pass the value as an argument) when the loop uses `=` or the owning go.mod is older than 1.22; those loops reuse variables.
 
 ## ServeMux method+path patterns
 **When to use**: HTTP routes on Go 1.22+.

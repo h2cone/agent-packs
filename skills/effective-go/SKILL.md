@@ -12,7 +12,7 @@ description: "Knowledge base from \"Effective Go\" by The Go Authors, plus a 1.1
 
 ## How to Use This Skill
 
-- **Writing or editing Go** - read [references/modern.md](references/modern.md) first. Apply every rule whose **Since** is ≤ the module `go` line. Those rules win over older snippets in the chapters.
+- **Writing or editing Go** - read [references/modern.md](references/modern.md) first. Apply each rule whose **Since** is ≤ the target package's owning `go.mod` version and whose preconditions are met; `go.work` does not override that language version. Those rules win over older snippets in the chapters.
 - **Without arguments** - load core frameworks below. Do **not** load all 17 chapters.
 - **With a topic** - ask about `slices`, `channels`, `interfaces`, `defer`, etc.; load only the matching chapter (and modern.md when the topic is syntax/stdlib).
 - **With a chapter** - ask for `ch09` (Data) or `ch15` (Concurrency); load that chapter file.
@@ -34,7 +34,7 @@ When you ask about a topic not in Core Frameworks below, I read the relevant cha
 
 **Keep the happy path down the page.** `if`/`switch` take an init statement (`if err := f(); err != nil`). When a guard body ends in `return`/`break`/`continue`, *drop the `else`* - eliminate error cases as they arise. `:=` lets one `err` flow through a chain of guards in the same scope. (Ch 7)
 
-**`for` is the only loop; `switch` is a condition ladder.** `for init; cond; post {}` / `for cond {}` / `for {}`. On Go 1.22+, `for i := range n` replaces `for i := 0; i < n; i++`. `range` also iterates collections and decodes strings to runes; drop the second value for key-only, use `_` for value-only. Loop variables are per-iteration as of 1.22 — do not copy `v := v` before a goroutine. `switch {}` (no expression) switches on `true` - the idiomatic `if-else-if`. No fallthrough; comma-separated cases. Label a loop and `break Loop` to exit it from inside a `switch`. Type switch: `switch t := x.(type)` on `any`, not `interface{}`. (Ch 7, modern.md)
+**`for` is the only loop; `switch` is a condition ladder.** `for init; cond; post {}` / `for cond {}` / `for {}`. On Go 1.22+, `for i := range n` replaces `for i := 0; i < n; i++`. `range` also iterates collections and decodes strings to runes; drop the second value for key-only, use `_` for value-only. On 1.22+, loop variables declared with `:=` are per-iteration; omit redundant `v := v` copies for those variables. With `=`, keep a copy or pass the value as a goroutine argument when capturing an iteration's value. `switch {}` (no expression) switches on `true` - the idiomatic `if-else-if`. No fallthrough; comma-separated cases. Label a loop and `break Loop` to exit it from inside a `switch`. Type switch: `switch t := x.(type)` on `any`, not `interface{}`. (Ch 7, modern.md)
 
 **Multiple returns replace in-band errors and out-params.** Return `(value, error)`. Named result parameters document the return and enable naked `return`. (Ch 8)
 
