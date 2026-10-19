@@ -41,6 +41,15 @@ Decision rules for acting the way the document advises. Not a term list - every 
 - Need to break an **outer loop** from inside a `switch`? → label the loop, `break Loop`.
 - Branch on an interface's concrete type? → type switch, not a chain of assertions.
 - Need one specific type out of an interface? → comma-ok assertion (`v, ok := x.(T)`), never bare `x.(T)`.
+- Counting `0..n-1` on Go 1.22+? → `for i := range n`, not `for i := 0; i < n; i++`.
+- Capturing a loop variable in a goroutine on Go 1.22+? → omit redundant `v := v` copies for variables declared with `:=`; with `=`, keep a copy or pass the value as an argument.
+
+## Modern emit (1.18–1.22) — see references/modern.md
+- Empty interface → `any`, never `interface{}` (1.18).
+- Membership in a slice → `slices.Contains` (1.21), not a search loop.
+- Error identity → `errors.Is` / `errors.As` + `%w`; never `err == target` on a wrapped error.
+- HTTP routes on 1.22+ → `mux.HandleFunc("GET /item/{id}", f)` + `r.PathValue("id")`, not `http.Handle("/", …)`.
+- Honor the target package's owning `go.mod` line; `go.work` does not override its language version. Skip rules newer than it or whose preconditions are not met.
 
 ## Naming quick rules
 - First letter upper = **exported**; lower = package-private.

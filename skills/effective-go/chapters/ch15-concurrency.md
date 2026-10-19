@@ -33,7 +33,7 @@ Go's slogan: **"Do not communicate by sharing memory; instead, share memory by c
 - **Concurrency vs. parallelism**: Concurrency = structuring a program as independently executing components; parallelism = executing calculations in parallel for speed. Go is a *concurrent* language, not a parallel one; not all parallel problems fit its model.
 - **`runtime.NumCPU()` / `runtime.GOMAXPROCS(0)`**: hardware cores vs. user-configured parallelism; prefer the latter to honor the user's request.
 - **`select` with `default`**: makes a channel operation non-blocking; the `default` case runs when no other case is ready.
-- **Loop-variable capture (pre-1.22 bug)**: the loop variable is shared across goroutines - capture it explicitly or use Go 1.22+ per-iteration semantics.
+- **Loop variables declared with `:=` are per-iteration on Go 1.22+**: omit redundant `item := item` copies for those variables. Loops using `=` still reuse existing variables; keep a copy or pass the value as a goroutine argument when capturing an iteration's value. The copy is also needed for `:=` loops when the owning go.mod is older than 1.22. See [modern.md](../references/modern.md).
 
 ## Mental Models
 - Think of a channel as both a queue *and* a synchronizer: sending/receiving is the handshake.
@@ -45,6 +45,7 @@ Go's slogan: **"Do not communicate by sharing memory; instead, share memory by c
 - **Spawning a goroutine per request while only limiting *running* ones**: unbounded goroutine growth; gate creation or use a fixed pool.
 - **Confusing concurrency with parallelism**: structuring concurrently doesn't guarantee parallel speedup.
 - **Blocking on a channel without a `default` when you wanted non-blocking**: use `select`/`default`.
+- **Redundant `item := item` before `go` on Go 1.22+ when the loop declares `item` with `:=`**: per-iteration variables already exist. This does not apply to loops using `=`.
 
 ## Code Examples
 ```go
